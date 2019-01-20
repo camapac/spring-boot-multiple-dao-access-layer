@@ -18,12 +18,12 @@ The project try to using both data dao layer: Spring data JPA, and Hibernate Cus
 
 Business Logic
 
-1 Search weather by CityID (List city get from our database)
-2 After we have the city call API from openWeatherApi to get forecast
-3 Get the forecast we filter data if the logs data not existing in the db we will process insert to db and return to client
-In this step I using the Event/Listener task excuter to make better performace 
-Using ControllAdvise for handler the level API exception.
+1 Search weather by CityID (List city get from our database) <br />
+2 After we have the city call API from openWeatherApi to get forecast <br />
+3 Get the forecast we filter data if the logs data not existing in the db we will process insert to db and return to client <br />
+In this step I using the Event/Listener task excuter to make better performace <br />
+Using ControllAdvise for handler the level API exception. <br />
 
-To implement preformcace in the future we can using caching solution and load balancer.
+To implement preformcace in the future we can using caching solution and load balancer. <br />
 
 Not have the time to implement the testing. 
