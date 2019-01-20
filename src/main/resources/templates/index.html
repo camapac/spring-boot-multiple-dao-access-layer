@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+	crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+	integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+	crossorigin="anonymous">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js-bootstrap-css/1.2.1/typeaheadjs.min.css" />
+<title>Weather</title>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8">
+				<form class="col-md-8">
+					<h5>Search weather</h5>
+					<div class="input-group">
+						<input type="text" class="form-control typeahead border-primary"
+							name="query" id="query"
+							placeholder="Start typing city name to search...">
+						<div class="input-group-append">
+							<button type="button" class="btn btn-outline-primary">
+								Search</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6"></div>
+		</div>
+
+	</div>
+
+
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+
+	<script
+		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+		integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js">
+	</script>
+
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(
+				function() {
+
+					$("#query").typeahead(
+							{
+								source : function(query, syncResults,
+										asyncResults) {
+									$.get('/api/v1/city/' + query).done(
+											function(data) {
+												syncResults(data);
+											});
+								},
+								display : function(item) {
+									//alert(item.country);
+									return item.name + '–' + item.countryCode
+								},
+								templates : {
+									empty : [ '<div class="empty-message">',
+											'Unable find the city name',
+											'</div>' ].join('\n'),
+									suggestion : function(data) {
+										console.log(data);
+									}
+								//Handlebars.compile('<div><strong>{{name}}</strong> – {{countryCode}}</div>')
+								},
+								minLength : 2,
+								delay : 0,
+							}).bind("typeahead:selected", function(obj, datum) {
+						console.log(dataum);
+						$(this).data("seletectedId", datum.Id);
+					});
+
+				});
+	</script>
+</body>
+</html>
