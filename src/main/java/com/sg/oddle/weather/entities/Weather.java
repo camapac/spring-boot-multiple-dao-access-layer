@@ -17,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name="weather")
 public class Weather implements Serializable {
@@ -29,12 +31,13 @@ public class Weather implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id",unique = true, nullable = false)
-	private Long id;
+	private Integer id;
 	
 	@ManyToOne
 	@JoinColumn(name="city_id", nullable=false)
 	private City city;
 	
+	@JsonManagedReference
 	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="weather",targetEntity=WeatherStatus.class)
 	private List<WeatherStatus> weather;
 	
@@ -53,10 +56,10 @@ public class Weather implements Serializable {
 	private long dt;
 	private Date dt_txt;
 	private Timestamp created_date;
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public City getCity() {

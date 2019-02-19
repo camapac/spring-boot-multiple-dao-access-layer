@@ -19,4 +19,6 @@ public interface ICityService {
 
 	List<City> getListCityByName(String name);
 
+	void saveBulkCity(List<City> listCity);
+
 }

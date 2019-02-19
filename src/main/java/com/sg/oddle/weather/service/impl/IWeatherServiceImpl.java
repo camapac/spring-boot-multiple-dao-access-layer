@@ -36,7 +36,7 @@ import com.sg.oddle.weather.util.WeatherUtil;
 @Service
 @Transactional
 public class IWeatherServiceImpl implements IWeatherService {
-
+	
 	@Value("${openweather.api.get.weather}")
 	private String get_weather_url;
 
@@ -65,8 +65,13 @@ public class IWeatherServiceImpl implements IWeatherService {
 		
 	}
 
+	@Transactional
 	@Override
 	public boolean deleteWeatherLog(Integer cityId, Long dt) {
+		Integer weather = weatherRepository.deleteByCity_IdAndDt(cityId, dt);
+		if (weather != null) {
+			return true;
+		}
 		return false;
 	}
 
@@ -79,30 +84,47 @@ public class IWeatherServiceImpl implements IWeatherService {
 		Optional<City> optionalCity = cityRepository.findById(cityId);
 		if (optionalCity.isPresent()) {
 			City city = optionalCity.get();
-			WeatherApiResponse weatherResponse = getWeatherResponse(city.getName());
-			if (weatherResponse != null) {
-				List<WeatherInfo> listWeatherInfo = weatherResponse.getList();
-				if (listWeatherInfo != null && listWeatherInfo.size() > 0) {
+			
+			
+			try {
+				WeatherApiResponse weatherResponse = getWeatherResponse(city.getName());
+				if (weatherResponse != null) {
+					List<WeatherInfo> listWeatherInfo = weatherResponse.getList();
+					if (listWeatherInfo != null && listWeatherInfo.size() > 0) {
 
-					System.out.println("Found data from openWeatherAPI");
-					List<Weather> weathers = listWeatherInfo.parallelStream().filter(existInDatabase(city.getId()))
-							.map(k -> {
+						System.out.println("Found data from openWeatherAPI");
+						List<Weather> weathers = listWeatherInfo.parallelStream().filter(existInDatabase(city.getId()))
+								.map(k -> {
 
-								return WeatherUtil.weatherInfoToObject(k, city);
+									return WeatherUtil.weatherInfoToObject(k, city);
 
-							}).collect(Collectors.toList());
+								}).collect(Collectors.toList());
+						
+						if (weathers != null && weathers.size() > 0) {
+							Event<Weather> event = new Event<>(weathers, EventsType.PUSH_DATA_TO_DB);
+							eventProducer.pushNotification(event);
+							return weathers;
+						} 
 
-					Event<Weather> event = new Event<>(weathers, EventsType.PUSH_DATA_TO_DB);
-					eventProducer.pushNotification(event);
-					return weathers;
+					}
 				}
-			} else {
-				System.out.println("Cannot get data from API...");
+			} catch (Exception e) {
+				//Too be implement
 			}
+			//Try get the weather from database and return the data.
+			return getWeatherByCity(city);
+
 		}
 
 		return null;
 	}
+	
+	
+	private List<Weather> getWeatherByCity(City city) {
+		return weatherRepository.findTop20ByCity_IdOrderByDtDesc(city.getId());
+	}
+
+
 
 	public Predicate<WeatherInfo> existInDatabase(Integer cityId) {
 		return p -> {

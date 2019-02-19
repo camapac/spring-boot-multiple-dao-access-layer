@@ -20,7 +20,7 @@ public interface CityRepository extends PagingAndSortingRepository<City, Integer
 	  void truncateData();
 	  
 	  
-	  List<City> findByNameLike(final String name);
+	  List<City> findByNameContaining(final String name);
 	  
 	  City findByName(final String name);
 }

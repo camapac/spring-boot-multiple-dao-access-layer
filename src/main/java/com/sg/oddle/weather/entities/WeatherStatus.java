@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name="weather_status")
 public class WeatherStatus {
@@ -20,6 +22,7 @@ public class WeatherStatus {
 	@Column(name="id",unique = true, nullable = false)
 	private Integer id;
 	
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name="weather_id", nullable=false)
 	private Weather weather;

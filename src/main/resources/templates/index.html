@@ -4,58 +4,52 @@
 <meta charset="UTF-8">
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-	crossorigin="anonymous">
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
 
-<!-- Optional theme -->
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-	integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-	crossorigin="anonymous">
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js-bootstrap-css/1.2.1/typeaheadjs.min.css" />
 <title>Weather</title>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8">
-				<form class="col-md-8">
-					<h5>Search weather</h5>
-					<div class="input-group">
-						<input type="text" class="form-control typeahead border-primary"
-							name="query" id="query"
-							placeholder="Start typing city name to search...">
-						<div class="input-group-append">
-							<button type="button" class="btn btn-outline-primary">
-								Search</button>
-						</div>
-					</div>
-				</form>
+	<div class="container-fluid">
+		<div class="row col-xs-12 col-md-10">
+			<h2>The city weather</h2>
+			<div class="well col-md-8">
+				<div class="row">
+					<form>
+						<fieldset>
+							<div class="form-group">
+								<input class="form-control typeahead twitter-typeahead"
+									data-provide="typeahead" name="query" id="query"
+									placeholder="Start typing city name to search..." type="text">
+							</div>
+						</fieldset>
+						<input type="hidden" id="seletectedId" />
+						<button type="button" class="btn btn-primary" id="btn-search">Search</button>
+					</form>
+				</div>
+				<!-- Display weather data -->
+				<span class="clear-fix">&nbsp;</span>
+				<div class="row">
+					<table class="table table-hover">
+						<tbody id="weatherContentId">
+							
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-6"></div>
-		</div>
+
 
 	</div>
 
 
-	<!-- Optional JavaScript -->
-	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
-
-	<script
-		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-		integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-		crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js">
-	</script>
-
-	<script
+	<script type="text/javascript" charset="utf8"
+		src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.2.js"></script>
+	<script type="text/javascript" charset="utf8"
+		src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" charset="utf8"
 		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+
+	<script type="text/javascript" src="../handlebars-v4.1.0.js"></script>
 
 	<script type="text/javascript">
 		$(document).ready(
@@ -70,27 +64,90 @@
 												syncResults(data);
 											});
 								},
-								display : function(item) {
-									//alert(item.country);
-									return item.name + '–' + item.countryCode
+								displayText : function(item) {
+									return item.name + ' – ' + item.countryCode
+											+ "(Lon:" + item.coordLon + ",Lat:"
+											+ item.coordLat + ")";
 								},
-								templates : {
-									empty : [ '<div class="empty-message">',
-											'Unable find the city name',
-											'</div>' ].join('\n'),
-									suggestion : function(data) {
-										console.log(data);
-									}
-								//Handlebars.compile('<div><strong>{{name}}</strong> – {{countryCode}}</div>')
+								afterSelect : function(item) {
+									$("#seletectedId").val(item.id);
 								},
-								minLength : 2,
+								minLength : 3,
 								delay : 0,
-							}).bind("typeahead:selected", function(obj, datum) {
-						console.log(dataum);
-						$(this).data("seletectedId", datum.Id);
+							});
+
+					$('#btn-search').click(function(e) {
+						var cityId = $("#seletectedId").val();
+						console.log(cityId);
+						if (cityId > 0) {
+							$.get("api/v1/weather/"+cityId).done(function(data){
+								if (Array.isArray(data) && data.length > 0) {
+									dodisplaytheWeather(data);
+								}
+							});
+
+						}
+
 					});
+					
+					
 
 				});
+		
+		function dodisplaytheWeather(data) {
+			var source = $('#weather_data_tmpl')[0].innerHTML;
+			var template = Handlebars.compile(source);
+			var weatherlist = template(data);
+			$('#weatherContentId').html(weatherlist);
+			
+			$('.btn-delete-weather').click(function(e){
+				var weatherId = $(this).attr( "weather_id" );
+				var cityId = $(this).attr( "city_id" );
+				var dt = $(this).attr( "dt" );
+				
+				console.log(weatherId);
+				console.log(cityId);
+				console.log(dt);
+				//var result = true;
+				/* if (typeof weatherId !== "undefined" && weatherId != null && weather > 0 ) {
+					 result = deleteWeatherById(weatherId);	
+				} else {
+					 if (cityId > 0 && dt > 0)
+					 	result = deleteWeatherLogByCityAndDt(cityId, dt);
+				}
+				 */
+				 
+				 deleteWeatherLogByCityAndDt(cityId, dt,$(this));
+			  
+			});
+			
+		}
+		
+		function deleteWeatherLogByCityAndDt(cityId, dt, _this){
+			if (cityId > 0 && dt > 0) {
+				$.ajax({
+				    url: 'api/v1/weather/'+cityId+'/'+dt,
+				    type: 'DELETE',
+				    success: function(result) {
+				    	console.log("Delete result "+result);
+						if (typeof result === "boolean" && result) 
+							_this.closest('tr').remove();
+				    }
+				});
+			}
+			
+		}
 	</script>
+	<script id="weather_data_tmpl" type="text/x-handlebars-teample">
+		{{#each this}}
+			<tr>
+				<td>{{city.name}}</td>
+				<td>{{city.countryCode}} <small>({{city.coordLon}},{{city.coordLat}})</small></td>
+				<td>{{dt_txt}}</td>
+				<td>{{#weather}} {{main}}{{/weather}}</td>
+				<td><button type="button" class="btn btn-danger btn-delete-weather" weather_id="{{id}}" city_id="{{city.id}}" dt="{{dt}}">Delete</button></td>
+			</tr>
+		{{/each}}
+	</script> 
 </body>
 </html>

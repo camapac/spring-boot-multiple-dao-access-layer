@@ -2,8 +2,6 @@ package com.sg.oddle.weather.api;
 
 import java.util.List;
 
-import javax.websocket.server.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +23,7 @@ public class WeatherRestApi {
 	private IWeatherService weatherService;
 
 	@GetMapping(value="/{cityId}")
-	ResponseEntity<List<Weather>> getListByName(@PathVariable("city") Integer cityId) {
+	ResponseEntity<List<Weather>> getListByName(@PathVariable("cityId") Integer cityId) {
 		if (cityId != null) {
 			List<Weather>  weathers = weatherService.getWeatherByCity(cityId);
 			if (weathers != null && weathers.size() > 0) {
@@ -41,4 +39,7 @@ public class WeatherRestApi {
 		boolean result = weatherService.deleteWeatherLog(cityId,dt);
 		return ResponseEntity.ok(result);
 	}
+	
+	
+	
 }
