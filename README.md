@@ -15,7 +15,6 @@ mvn clean install
 Project using:
 Java 8, Spring boot 2, Spring data jpa, Hibernate, Mysql.
 
-The project haven't finish because i just do the project yesterday night due workload at the company 
 The project try to using both data dao layer: Spring data JPA, and Hibernate Custom. In the real project we can select one.
 
 
@@ -33,8 +32,3 @@ Please note: Some data deleted can be persist because after you search again the
 In this step I using the Event/Listener task excuter to make better performace <br />
 Using ControllAdvise for handler the level API exception. <br />
 
-To implement preformcace in the future we can using caching solution and load balancer. <br />
-
-
-
-Not have the time to implement the testing. 
